@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="imageApp">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Of photos</title>
+  <style>
+    .thumbnail {
+      padding: 0px;
+      width: 106px;
+      height: 60px;
+      margin: 6px;
+      cursor: pointer;
+    }
+
+    .thumbnail-container {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .enlarged-image {
+      max-width: 40%;
+      max-height: 40%;
+      margin: auto;
+      display: block;
+    }
+
+    body {
+        padding: 0;
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+</head>
+
+<body>
+  <div class="container" ng-controller="ImageController">
+    <h1>Image Of photos</h1>
+
+    <div class="thumbnail-container">
+      <div class="col-md-2" ng-repeat="image in images">
+        <img class="thumbnail" ng-src="{{image.thumbnail}}" ng-click="enlargeImage(image)" />
+      </div>
+    </div>
+
+    <div id="pager"></div>
+    <div class="ml-auto">
+      <div class="lds-ellipsis d-none">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+
+    <div ng-show="enlargedImage">
+      <div class="modal fade show d-block" tabindex="-1" role="dialog" style="display: block;" ng-click="closeImage()">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-body">
+              <img class="enlarged-image" ng-src="{{enlargedImage}}" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var app = angular.module('imageApp', []);
+
+      app.controller('ImageController', function ($scope, $http) {
+        $scope.images = [];
+        $scope.enlargedImage = null;
+
+        // Fetch random images
+        $http.get('https://picsum.photos/v2/list?limit=15')
+          .then(function (response) {
+            response.data.forEach(function (item) {
+              $scope.images.push({
+                thumbnail: item.download_url + '?w=106&h=60&fit=crop',
+                large: item.download_url
+              });
+            });
+          });
+
+        $scope.enlargeImage = function (image) {
+          $scope.enlargedImage = image.large;
+        };
+
+        $scope.closeImage = function () {
+          $scope.enlargedImage = null;
+        };
+      });
+    </script>
+  </div>
+</body>
+
+</html>
